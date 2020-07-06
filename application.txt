@@ -1,0 +1,149 @@
+Public src As Variant
+Public dest As Variant
+
+
+Public Sub get_source_file()
+    'im src As Variant
+    Dim srcbook As Workbook
+    'Application.ScreenUpdating = False
+    
+    src = Application.GetOpenFilename(Filefilter:="ExcelFiles(*.xls*),*xls*", Title:="Browse for your file")
+        
+    'If src <> False Then
+       ' Set srcbook = Application.Workbooks.Open(src)
+        'srcbook.Sheets(1).range("C1:C10").Copy
+        'ThisWorkbook.Worksheets(1).range("A1").PasteSpecial xlPasteValues
+        'srcbook.Close False
+    'End If
+    ' Application.ScreenUpdating = True
+    
+        
+        
+End Sub
+
+Sub list_sheets()
+    
+Dim disp As Workbook
+
+Dim ws As Worksheet
+Dim x As Integer
+Application.ScreenUpdating = False
+ 
+x = 2
+ 
+Set disp = Application.Workbooks.Open(src)
+ 
+ 
+For Each ws In disp.Worksheets
+     ThisWorkbook.Sheets("Sheet1").Cells(x, 10) = ws.Name
+     x = x + 1
+Next ws
+disp.Close False
+Application.ScreenUpdating = True
+End Sub
+
+
+Sub sel_dest()
+      dest = Application.GetOpenFilename(Filefilter:="ExcelFiles(*.xls*),*xls*", Title:="Browse for your file")
+End Sub
+Sub list_dest_sheets()
+    Dim disp As Workbook
+
+Dim ws As Worksheet
+Dim x As Integer
+Application.ScreenUpdating = False
+ 
+x = 2
+ 
+Set disp = Application.Workbooks.Open(dest)
+ 
+ 
+For Each ws In disp.Worksheets
+     ThisWorkbook.Sheets("Sheet1").Cells(x, 11) = ws.Name
+     x = x + 1
+Next ws
+disp.Close False
+Application.ScreenUpdating = True
+End Sub
+Sub list_source_col()
+    Dim lsco As Workbook
+    Dim x As Integer
+    a = InputBox("Enter the name of the worksheet")
+    Application.ScreenUpdating = False
+    x = 2
+ 
+    Set lsco = Application.Workbooks.Open(src)
+   
+    lastcol = lsco.Worksheets(a).Cells(1, Columns.Count).End(xlToLeft).Column
+    For i = 1 To lastcol
+        ThisWorkbook.Sheets("Sheet1").Cells(x, 8) = lsco.Worksheets(a).Cells(1, i).Value
+        x = x + 1
+    Next i
+    lsco.Close False
+    Application.ScreenUpdating = True
+End Sub
+
+Sub list_dest_col()
+
+    Dim lsco As Workbook
+    Dim x As Integer
+    Dim myRange As range
+    'Set myRange = range("i2:i1048576")
+    'myRange.ClearContents
+    a = InputBox("Enter the name of the worksheet")
+    Application.ScreenUpdating = False
+    x = 2
+ 
+    Set lsco = Application.Workbooks.Open(dest)
+   
+    lastcol = lsco.Worksheets(a).Cells(1, Columns.Count).End(xlToLeft).Column
+    For i = 1 To lastcol
+        ThisWorkbook.Sheets("Sheet1").Cells(x, 9) = lsco.Worksheets(a).Cells(1, i).Value
+        x = x + 1
+    Next i
+    lsco.Close False
+    Application.ScreenUpdating = True
+End Sub
+
+Sub transfer()
+
+Dim i As Long, j As Long, lastrow1 As Long, lastrow2 As Long
+Dim comp As String
+Dim soutra As Workbook
+Dim destra As Workbook
+m = 0
+a = InputBox("Enter the name of the source worksheet")
+b = InputBox("Enter the name of the destination worksheet")
+Set soutra = Application.Workbooks.Open(src)
+Set destra = Application.Workbooks.Open(dest)
+lastrow1 = soutra.Worksheets(a).range("A" & Rows.Count).End(xlUp).Row
+lastcoldest = destra.Worksheets(b).Cells(1, Columns.Count).End(xlToLeft).Column
+lastcolsource = soutra.Worksheets(a).Cells(1, Columns.Count).End(xlToLeft).Column
+c = InputBox("Enter the name of the column you want to copy")
+For k = 1 To lastcolsource
+  If StrComp(soutra.Worksheets(a).Cells(1, k), c) = 0 Then
+    destra.Worksheets(b).Cells(1, lastcoldest + 1).Value = c
+    For i = 2 To lastrow1
+        comp = soutra.Worksheets(a).Cells(i, "A").Value
+        lastrow2 = destra.Worksheets(b).range("A" & Rows.Count).End(xlUp).Row
+        For j = 2 To lastrow2
+            If StrComp(destra.Worksheets(b).Cells(j, "A"), comp) = 0 Then
+                soutra.Worksheets(a).Cells(i, k).Copy
+                destra.Worksheets(b).Activate
+                destra.Worksheets(b).Cells(j, lastcoldest + 1).Select
+                ActiveSheet.Paste
+            End If
+            Next j
+            Application.CutCopyMode = False
+    Next i
+    End If
+    Next k
+                    
+End Sub
+Sub clear_contents()
+    src = False
+    dest = False
+    Set myRange = range("h2:k1048576")
+    myRange.ClearContents
+End Sub
+
